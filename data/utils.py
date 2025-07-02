@@ -30,6 +30,7 @@ def concat_regional(path_in, path_out):
     ds_list = []
 
     for path in path_list:
+        print(path)
         ds_out = xr.open_dataset(os.path.join(path_in, path), decode_timedelta=True)
 
         long_name = ds_out['time'].attrs.get('long_name', '')
@@ -65,6 +66,61 @@ def concat_regional(path_in, path_out):
 
     print(ds_concat)
     return ds_concat
+
+
+def concat_regional2(path_in, path_out):
+    import xarray as xr
+    import pandas as pd
+    import os
+
+    path_list = sorted(os.listdir(path_in))
+    ds_list = []
+
+    for path in path_list:
+        print(f"Procesando: {path}")
+        ds_out = xr.open_dataset(os.path.join(path_in, path), decode_timedelta=True, chunks={})
+
+        # Extraer fecha base desde el nombre del archivo (ej: 2017-06-11)
+        filename_date = path.split('_')[-2]  # '2017-06-11'
+        base_date = pd.to_datetime(filename_date)
+
+        # Convertir valores de tiempo a timedelta (usualmente en horas desde 1900-01-01)
+        time_units = ds_out.time.attrs.get("units", "")
+        if "since 1900" in time_units:
+            time_values = pd.to_timedelta(ds_out.time.values.astype("float64"), unit="h")
+            datetime_values = base_date + time_values
+        else:
+            datetime_values = pd.to_datetime(ds_out.time.values)
+
+        # Asignar nueva coordenada datetime
+        ds_with_datetime = ds_out.assign_coords(datetime=("time", datetime_values))
+
+        # Promediar por día
+        ds_daily = ds_with_datetime.groupby("datetime.date").mean(dim="time")
+        ds_daily = ds_daily.rename({'date': 'time'})  # renombrar dimensión
+
+        # Asegurar que 'time' tenga formato datetime
+        ds_daily['time'] = pd.to_datetime(ds_daily['time'].values)
+
+        ds_list.append(ds_daily)
+
+    # Concatenar todos los datasets
+    ds_concat = xr.concat(ds_list, dim='time')
+    ds_concat = ds_concat.sortby('time')
+
+    # Ajustar longitudes si es necesario
+    new_lon = ds_concat.longitude.where(ds_concat.longitude < 180, ds_concat.longitude - 360)
+    ds_concat = ds_concat.assign_coords(longitude=new_lon).sortby("longitude")
+
+    # Guardar dataset final
+    ds_concat.to_netcdf(path_out)
+
+    print("Dataset final concatenado:")
+    print(ds_concat)
+
+    return ds_concat
+
+
 
 
 def regrid(pattern_path, slave_path, output_path):
@@ -177,57 +233,57 @@ def print_nc_in_map(file_path, name_var, time):
 
 
 
-print_nc_in_map("CAMS_regional_forecast_2023-2025.nc","pm2p5_conc", 100)
+"""print_nc_in_map("CAMS_regional_forecast_2023-2025.nc","pm2p5_conc", 100)
 print_nc_in_map("CAMS_global_forecast_2015-2025.nc","pm2p5",100)
 print_nc_in_map("ETOPO_2022_v1_60s_N90W180_surface_global_regridded.nc","z", 0)
 print_nc_in_map("ETOPO_2022_v1_60s_N90W180_surface_regional_regridded.nc","z", 0)
 print_nc_in_map("GHS_population_spatial_resol_0.1_global_regridded.nc","__xarray_dataarray_variable__",0)
-print_nc_in_map("GHS_population_spatial_resol_0.1_regional_regridded.nc","__xarray_dataarray_variable__",0)
+print_nc_in_map("GHS_population_spatial_resol_0.1_regional_regridded.nc","__xarray_dataarray_variable__",0)"""
 
 
 
 
-if __name__ == "__maino__":
+if __name__ == "__main__":
 
     # Concatenate global
-    concat_global(path_input="CAMS_global_forecast/CAMS_global_forecast/", path_output="CAMS_global_forecast_2015-2025.nc")
-    print("=" * 80)
+    """concat_global(path_input="CAMS_global_forecast/CAMS_global_forecast/", path_output="CAMS_global_forecast_2015-2025.nc")
+    print("=" * 80)"""
 
     # Concatenate regional
-    concat_regional(path_in="CAMS_europe_forecast/CAMS_europe_forecast",path_out="CAMS_europe_forecast_2023-2025.nc")
+    concat_regional2(path_in="data/pm2p5/2017",path_out="CAMS_europe_forecast_2023-2025.nc")
     print("=" * 80)
 
     # Regrid population to global
-    regrid(
+    """regrid(
         "CAMS_global_forecast_2015-2025.nc",
         "GHS_population_spatial_resol_0.1/GHS_population_spatial_resol_0.1.nc",
         "GHS_population_spatial_resol_0.1_regridded_.nc"
     )
-    print("=" * 80)
+    print("=" * 80)"""
 
     # Regrid topo to global
-    regrid(
+    """regrid(
         "CAMS_global_forecast_2015-2025.nc",
         "ETOPO_2022_v1_60s_N90W180_surface/ETOPO_2022_v1_60s_N90W180_surface.nc",
         "ETOPO_2022_v1_60s_N90W180_surface_regridded.nc"
     )
-    print("=" * 80)
+    print("=" * 80)"""
 
     # Regrid population to regional
-    regrid(
+    """regrid(
         "CAMS_europe_forecast_2023-2025.nc",
         "GHS_population_spatial_resol_0.1/GHS_population_spatial_resol_0.1.nc",
         "GHS_population_spatial_resol_0.1_regional_regridded_.nc"
     )
-    print("=" * 80)
+    print("=" * 80)"""
 
     # Regrid topo to regional
-    regrid(
+    """regrid(
         "CAMS_europe_forecast_2023-2025.nc",
         "ETOPO_2022_v1_60s_N90W180_surface/ETOPO_2022_v1_60s_N90W180_surface.nc",
         "ETOPO_2022_v1_60s_N90W180_surface_regional_regridded.nc"
     )
-    print("=" * 80)
+    print("=" * 80)"""
 
 
 
