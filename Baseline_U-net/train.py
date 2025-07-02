@@ -57,10 +57,10 @@ def train(model, train_loader, val_loader, epochs, device):
 
             # Entrenamiento
             for batch_X, batch_y in train_loader:
-                batch_X, batch_y = batch_X.to(device), batch_y.to(device)
+                batch_X, batch_y = batch_X.to(device), batch_y.to(device).float()
                 optimizer.zero_grad()
                 preds = model(batch_X)
-                loss = loss_fn(preds, batch_y)
+                loss = loss_fn(preds, batch_y) 
                 loss.backward()
                 optimizer.step()
                 train_loss += loss.item() * batch_X.size(0)
@@ -72,9 +72,9 @@ def train(model, train_loader, val_loader, epochs, device):
             model.eval()
             with torch.no_grad():
                 for batch_X, batch_y in val_loader:
-                    batch_X, batch_y = batch_X.to(device), batch_y.to(device)
+                    batch_X, batch_y = batch_X.to(device), batch_y.to(device).float()
                     preds = model(batch_X)
-                    loss = loss_fn(preds, batch_y)
+                    loss = loss_fn(preds, batch_y) 
                     val_loss += loss.item() * batch_X.size(0)
                     progress.update(task, advance=1)
 
