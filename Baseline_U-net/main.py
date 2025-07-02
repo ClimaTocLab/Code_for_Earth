@@ -15,7 +15,7 @@ print("CUDA IS AVAIABLE? "+str(torch.cuda.is_available()))
 
 # --- Ejecuciï¿½n ---
 TRAIN=1
-TEST=0
+TEST=1
 PLOT=0
 
 
@@ -25,14 +25,14 @@ if TRAIN or TEST:
     path_dynamic = 'data/CAMS_global_forecast_2015-2025.nc'
     path_static1 = 'data/ETOPO_2022_v1_60s_N90W180_surface_regional_regridded.nc'
     path_static2 = 'data/GHS_population_spatial_resol_0.1_regional_regridded.nc'
-    path_target = 'data/CAMS_regional_forecast_2023-2025.nc'
+    path_target = 'data/all_cams_ens_fc_pm2p5_level0_daily_2019_2025.nc'
 
     # Preparar inputs y target
     X, y, y_mean, y_std, dyn_stats = prepare_inputs_and_target(path_dynamic, path_static1, path_static2, path_target)
 
     # --- DEBUG: usar solo un subconjunto temporal pequeï¿½o ---
-    #X = X[:50]  # Usa solo los primeros n pasos temporales
-    #y = y[:50]
+    X = X[:10]  # Usa solo los primeros n pasos temporales
+    y = y[:10]
 
     print(f"Input shape: {X.shape}, Target shape: {y.shape}")
 
@@ -61,7 +61,7 @@ if TRAIN:
 
 if TEST:
     # Inferencia
-    model.load_state_dict(torch.load('best_model_0.pth'))
+    model.load_state_dict(torch.load('outputs/model_20250623_1303.pth'))
     test_model(model, test_loader, device, y_mean, y_std)
 
 
