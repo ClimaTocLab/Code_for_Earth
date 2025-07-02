@@ -47,7 +47,7 @@ def prepare_inputs_and_target(path_dynamic: str, path_static1: str, path_static2
             'lon_max': float(lon_max)
         }, f, indent=4)
 
-    target_array = torch.tensor(ds_target['pm2p5_conc'].values)  # [T, H, W]
+    target_array = torch.tensor(ds_target['mdens'].values)  # [T, H, W]
     T, H_hr, W_hr = target_array.shape
 
     print(f"[{path_target}] pm2p5: min={torch.min(target_array)}, "
