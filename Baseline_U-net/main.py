@@ -4,67 +4,106 @@ import numpy as np
 import random
 from train import train
 from model import UNetSuperRes
-from test import test_model
+from test import test_model, to_netcdf
 from dataset import prepare_inputs_and_target, ClimateSuperResDataset
+import xarray as xr
 
+# --- Reproducibility ---
 torch.manual_seed(42)
 np.random.seed(42)
 random.seed(42)
+
+# Print environment info
 print(torch.__version__)
-print("CUDA IS AVAIABLE? "+str(torch.cuda.is_available()))
+print("CUDA IS AVAILABLE? " + str(torch.cuda.is_available()))
 
-# --- Ejecuciï¿½n ---
-TRAIN=1
-TEST=1
-PLOT=0
-
+# --- Execution flags ---
+TRAIN = 0   # Set to 1 to train
+TEST = 1    # Set to 1 to evaluate
 
 
 if TRAIN or TEST:
-    # Rutas a los datos (cï¿½mbialas por las reales)
-    path_dynamic = 'data/CAMS_global_forecast_2015-2025.nc'
+    # --- Data paths ---
+    path_dynamic_train = "data/train_input.nc"
+    path_target_train = 'data/train_output.nc'
+
+    path_dynamic_val = "data/valid_input.nc"
+    path_target_val = "data/valid_output.nc"
+
+    path_dynamic_test = "data/test_input_2025.nc"
+    path_target_test = "data/test_output_2025.nc"
+
+    # Static variables (topography, population, etc.)
     path_static1 = 'data/ETOPO_2022_v1_60s_N90W180_surface_regional_regridded.nc'
     path_static2 = 'data/GHS_population_spatial_resol_0.1_regional_regridded.nc'
-    path_target = 'data/all_cams_ens_fc_pm2p5_level0_daily_2019_2025.nc'
 
-    # Preparar inputs y target
-    X, y, y_mean, y_std, dyn_stats = prepare_inputs_and_target(path_dynamic, path_static1, path_static2, path_target)
+    # --- Data preparation ---
+    # Training set (also computes normalization statistics)
+    X_train, y_train, y_mean, y_std, dyn_stats = prepare_inputs_and_target(
+        path_dynamic_train, path_static1, path_static2, path_target_train
+    )
 
-    # --- DEBUG: usar solo un subconjunto temporal pequeï¿½o ---
-    X = X[:10]  # Usa solo los primeros n pasos temporales
-    y = y[:10]
+    # Validation set (normalized using training stats)
+    X_val, y_val, _, _, _ = prepare_inputs_and_target(
+        path_dynamic_val, path_static1, path_static2, path_target_val,
+        y_mean=y_mean, y_std=y_std
+    )
 
-    print(f"Input shape: {X.shape}, Target shape: {y.shape}")
+    # Test set (normalized using training stats)
+    X_test, y_test, _, _, _ = prepare_inputs_and_target(
+        path_dynamic_test, path_static1, path_static2, path_target_test,
+        y_mean=y_mean, y_std=y_std
+    )
 
-    # Split data
-    T = X.shape[0]
-    train_end = int(0.8 * T)
-    val_end = int(0.9 * T)
+    # --- Optional: debug mode with small temporal subset ---
+    fast_debug = False
+    if fast_debug:
+        cut = 10
+        X_train = X_train[:cut]  # [T', C, H, W]
+        y_train = y_train[:cut]
 
-    # Divide los datos
-    train_dataset = ClimateSuperResDataset(X[:train_end], y[:train_end])
-    val_dataset = ClimateSuperResDataset(X[train_end:val_end], y[train_end:val_end])
-    test_dataset = ClimateSuperResDataset(X[val_end:], y[val_end:])
+        cut = 2
+        X_val = X_val[:cut]
+        y_val = y_val[:cut]
 
-    # Crea los dataloaders
+        X_test = X_test[:cut]
+        y_test = y_test[:cut]
+
+    # Print dataset shapes
+    print(f"Train shape: X={X_train.shape}, y={y_train.shape}")
+    print(f"Val shape:   X={X_val.shape}, y={y_val.shape}")
+
+    # --- Build datasets & loaders ---
+    train_dataset = ClimateSuperResDataset(X_train, y_train)
+    val_dataset = ClimateSuperResDataset(X_val, y_val)
+    test_dataset = ClimateSuperResDataset(X_test, y_test)
+
     train_loader = DataLoader(train_dataset, batch_size=8, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=8, shuffle=False)
     test_loader = DataLoader(test_dataset, batch_size=8, shuffle=False)
 
-    # Modelo
-    model = UNetSuperRes(n_channels_in=X.shape[1])
+    # --- Model setup ---
+    model = UNetSuperRes(n_channels_in=X_train.shape[1])
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+
+# --- Training ---
 if TRAIN:
-    # Entrenamiento
     train(model, train_loader, val_loader, epochs=100, device=device)
 
+
+# --- Testing / Evaluation ---
 if TEST:
-    # Inferencia
-    model.load_state_dict(torch.load('outputs/model_20250623_1303.pth'))
+    path = 'outputs/model_20250801_1701.pth'
+
+    # Load trained model weights
+    # model.load_state_dict(torch.load(path))  # GPU default
+    model.load_state_dict(torch.load(path, map_location=torch.device('cpu')))
+
+    # Evaluate on test set
     test_model(model, test_loader, device, y_mean, y_std)
 
-
-    
+    # Export results to NetCDF
+    to_netcdf(path_target_test)
 
 
