@@ -202,12 +202,13 @@ def print_nc_in_map(file_path, name_var, time):
 
 
 #print_nc_in_map("data/CAMS_regional_forecast_2023-2025.nc","pm2p5_conc", 100)
-print_nc_in_map("data/CAMS_global_forecast_2015-2025.nc","pm2p5",100)
+#print_nc_in_map("data/CAMS_global_forecast_2015-2025.nc","pm2p5",100)
 #print_nc_in_map("data/ETOPO_2022_v1_60s_N90W180_surface_global_regridded.nc","z", 0)
 #print_nc_in_map("data/ETOPO_2022_v1_60s_N90W180_surface_regional_regridded.nc","z", 0)
 #print_nc_in_map("data/GHS_population_spatial_resol_0.1_global_regridded.nc","__xarray_dataarray_variable__",0)
 #print_nc_in_map("data/GHS_population_spatial_resol_0.1_regional_regridded.nc","__xarray_dataarray_variable__",0)
-print_nc_in_map("data/all_cams_ens_fc_pm2p5_level0_daily_2019_2025.nc","mdens", 100)
+#print_nc_in_map("data/all_cams_ens_fc_pm2p5_level0_daily_2019_2025.nc","mdens", 100)
+print_nc_in_map("Baseline_U-net/outputs/preds_targets_lowres.nc","preds", 1)
 
 
 

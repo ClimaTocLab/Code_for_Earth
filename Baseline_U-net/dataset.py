@@ -68,7 +68,7 @@ def prepare_inputs_and_target(path_dynamic: str, path_static1: str, path_static2
     # --- Extract target shape and geo info ---
     lat = ds_target['latitude'].values
     lon = ds_target['longitude'].values
-    with open("data/geo_info.json", "w") as f:
+    with open("Baseline_U-net/data/geo_info.json", "w") as f:
         json.dump({
             'lat_min': float(lat.min()),
             'lat_max': float(lat.max()),
