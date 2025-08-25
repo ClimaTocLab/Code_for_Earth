@@ -1,0 +1,30 @@
+name: downscaling
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pytorch=2.0.1
+  - torchvision=0.15.2
+  - torchaudio=2.0.2
+  - cudatoolkit>=11.8
+  - numpy<2.0
+  - matplotlib
+  - plotly
+  - xarray
+  - dask
+  - geopandas
+  - cartopy
+  - netcdf4
+  - hdf5
+  - h5py
+  - pip
+  - pip:
+      - jsonargparse[signatures]
+      - lightning
+      - wandb
+      - basicsr
+      - einops
+      - diffusers
+      - timm
