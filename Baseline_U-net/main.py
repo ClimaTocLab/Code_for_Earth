@@ -18,24 +18,24 @@ print(torch.__version__)
 print("CUDA IS AVAILABLE? " + str(torch.cuda.is_available()))
 
 # --- Execution flags ---
-TRAIN = 0   # Set to 1 to train
-TEST = 1    # Set to 1 to evaluate
+TRAIN = 1   # Set to 1 to train
+TEST = 0    # Set to 1 to evaluate
 
 
 if TRAIN or TEST:
     # --- Data paths ---
-    path_dynamic_train = "data/train_input.nc"
-    path_target_train = 'data/train_output.nc'
+    path_dynamic_train = "/media/server/code4earth/Final_Dataset/daily_data_extended/train_input.nc"
+    path_target_train = '/media/server/code4earth/Final_Dataset/daily_data_extended/train_output.nc'
 
-    path_dynamic_val = "data/valid_input.nc"
-    path_target_val = "data/valid_output.nc"
+    path_dynamic_val = "/media/server/code4earth/Final_Dataset/daily_data_extended/valid_input.nc"
+    path_target_val = "/media/server/code4earth/Final_Dataset/daily_data_extended/valid_output.nc"
 
-    path_dynamic_test = "data/test_input_2025.nc"
-    path_target_test = "data/test_output_2025.nc"
+    path_dynamic_test = "/media/server/code4earth/Final_Dataset/daily_data_extended/test_input_2025.nc"
+    path_target_test = "/media/server/code4earth/Final_Dataset/daily_data_extended/test_output_2025.nc"
 
     # Static variables (topography, population, etc.)
-    path_static1 = 'data/ETOPO_2022_v1_60s_N90W180_surface_regional_regridded.nc'
-    path_static2 = 'data/GHS_population_spatial_resol_0.1_regional_regridded.nc'
+    path_static1 = '/media/server/code4earth/code4earth_datasets/ETOPO_2022_v1_60s_N90W180_surface_regional_regridded.nc'
+    path_static2 = '/media/server/code4earth/code4earth_datasets/GHS_population_spatial_resol_0.1_regional_regridded.nc'
 
     # --- Data preparation ---
     # Training set (also computes normalization statistics)
@@ -56,7 +56,7 @@ if TRAIN or TEST:
     )
 
     # --- Optional: debug mode with small temporal subset ---
-    fast_debug = False
+    fast_debug = True
     if fast_debug:
         cut = 10
         X_train = X_train[:cut]  # [T', C, H, W]
