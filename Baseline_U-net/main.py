@@ -17,12 +17,8 @@ random.seed(42)
 print(torch.__version__)
 print("CUDA IS AVAILABLE? " + str(torch.cuda.is_available()))
 
-# --- Execution flags ---
-TRAIN = 0   # Set to 1 to train
-TEST = 1    # Set to 1 to evaluate
 
-
-if TRAIN:
+def train_model(fast_debug=False):
     # --- Data paths ---
     path_dynamic_train = "/media/server/code4earth/Final_Dataset/daily_data_extended/train_input.nc"
     path_target_train = '/media/server/code4earth/Final_Dataset/daily_data_extended/train_output.nc'
@@ -48,7 +44,7 @@ if TRAIN:
     
 
     # --- Optional: debug mode with small temporal subset ---
-    fast_debug = True
+    #fast_debug = True
     if fast_debug:
         cut = 5
         X_train = X_train[:cut]  # [T', C, H, W]
@@ -83,7 +79,7 @@ if TRAIN:
     
 
 # --- Testing / Evaluation ---
-if TEST:
+def execute_model(fast_debug=False):
     path = 'Baseline_U-net/outputs/model.pth'
     with open("Baseline_U-net/outputs/y_mean-y_std.pkl", "rb") as f:
         stats = pickle.load(f)
@@ -102,6 +98,13 @@ if TEST:
         path_dynamic_test, path_static1, path_static2, path_target_test,
         y_mean=y_mean, y_std=y_std
     )
+    
+    # --- Optional: debug mode with small temporal subset ---
+    #fast_debug = True
+    if fast_debug:
+        cut = 5
+        X_test = X_test[:cut]  # [T', C, H, W]
+        y_test = y_test[:cut]    
         
     # --- Build datasets & loaders ---
     test_dataset = ClimateSuperResDataset(X_test, y_test)
@@ -119,6 +122,22 @@ if TEST:
     test_model(model, test_loader, device, y_mean, y_std)
 
     # Export results to NetCDF
-    to_netcdf(path_target_test)
+    if not fast_debug: to_netcdf(path_target_test)
 
 
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) > 1:
+        mode = sys.argv[1]
+
+        if mode == "train":
+            train_model()
+        elif mode == "test":
+            execute_model()
+        elif mode == "fast_debug":     
+            train_model(fast_debug = True)
+            execute_model(fast_debug = True)
+        else:
+            print("Unknown mode. Use 'train', 'test' or 'fast_debug'.")
+    else:
+        print("No argument was provided.")
