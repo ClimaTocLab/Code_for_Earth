@@ -102,13 +102,6 @@ if TEST:
         path_dynamic_test, path_static1, path_static2, path_target_test,
         y_mean=y_mean, y_std=y_std
     )
-    
-    # --- Optional: debug mode with small temporal subset ---
-    """    fast_debug = True
-    if fast_debug:
-        cut = 2
-        X_test = X_test[:cut]
-        y_test = y_test[:cut]"""
         
     # --- Build datasets & loaders ---
     test_dataset = ClimateSuperResDataset(X_test, y_test)
