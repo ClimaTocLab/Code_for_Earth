@@ -70,7 +70,7 @@ def to_netcdf(nc_source):
     time, latitude, and longitude coordinates from the original dataset.
     """
     # 1. Load saved .pt file
-    data = torch.load("outputs/preds_targets_lowres.pt")
+    data = torch.load("Baseline_U-net/outputs/preds_targets_lowres.pt")
     preds = data["preds"].numpy()     # (time, 1, H, W)
     targets = data["targets"].numpy()
     lowres = data["lowres"].numpy()
@@ -103,5 +103,5 @@ def to_netcdf(nc_source):
     )
 
     # 4. Save as NetCDF
-    ds_resultado.to_netcdf("preds_targets_lowres.nc")
+    ds_resultado.to_netcdf("Baseline_U-net/outputs/preds_targets_lowres.nc")
     print("✔ Saved as preds_targets_lowres.nc")
