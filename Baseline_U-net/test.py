@@ -16,7 +16,7 @@ def test_model(model, test_loader, device, y_mean, y_std):
     targets_all = []
     lowres_all = []
 
-    os.makedirs('outputs', exist_ok=True)
+    os.makedirs('Baseline_U-net/outputs', exist_ok=True)
 
     # Progress bar for evaluation
     with torch.no_grad(), Progress() as progress:
@@ -54,14 +54,14 @@ def test_model(model, test_loader, device, y_mean, y_std):
     # Save to file
     torch.save(
         {'preds': preds_all, 'targets': targets_all, 'lowres': lowres_all},
-        'outputs/preds_targets_lowres.pt'
+        'Baseline_U-net/outputs/preds_targets_lowres.pt'
     )
 
     # Debug info
     print(f"✔ Predictions denormalized: shape={preds_all.shape}, min={preds_all.min():.3f}, max={preds_all.max():.3f}")
     print(f"✔ Targets denormalized: shape={targets_all.shape}, min={targets_all.min():.3f}, max={targets_all.max():.3f}")
     print(f"✔ Low-res interpolated: shape={lowres_all.shape}, min={lowres_all.min():.3f}, max={lowres_all.max():.3f}")
-    print("✔ Predictions, targets and low-res saved in 'outputs/preds_targets_lowres.pt'")
+    print("✔ Predictions, targets and low-res saved in 'Baseline_U-net/outputs/preds_targets_lowres.pt'")
 
 
 def to_netcdf(nc_source):

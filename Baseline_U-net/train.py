@@ -72,7 +72,7 @@ def train(model, train_loader, val_loader, epochs, device):
     """
     # Model checkpoint filename with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M")
-    output_model_name = f"outputs/model_{timestamp}.pth"
+    output_model_name = f"Baseline_U-net/outputs/model_{timestamp}.pth"
 
     model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=5e-4)

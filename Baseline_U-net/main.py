@@ -89,12 +89,14 @@ if TRAIN or TEST:
 
 # --- Training ---
 if TRAIN:
-    train(model, train_loader, val_loader, epochs=100, device=device)
+    if fast_debug: epochs=2 
+    else: epochs=200
+    train(model, train_loader, val_loader, epochs=epochs, device=device)
 
 
 # --- Testing / Evaluation ---
 if TEST:
-    path = 'outputs/model_20250801_1701.pth'
+    path = 'Baseline_U-net/model_20250801_1701.pth'
 
     # Load trained model weights
     # model.load_state_dict(torch.load(path))  # GPU default
