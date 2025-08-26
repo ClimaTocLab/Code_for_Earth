@@ -86,12 +86,16 @@ def execute_model(fast_debug=False):
     y_mean, y_std, n_channels_in = stats["y_mean"], stats["y_std"], stats["n_channels_in"]
     
     # --- Data paths ---
-    path_dynamic_test = "/media/server/code4earth/Final_Dataset/daily_data_extended/test_input_2025.nc"
-    path_target_test = "/media/server/code4earth/Final_Dataset/daily_data_extended/test_output_2025.nc"
+    #path_dynamic_test = "/media/server/code4earth/Final_Dataset/daily_data_extended/test_input_2025.nc"
+    #path_target_test = "/media/server/code4earth/Final_Dataset/daily_data_extended/test_output_2025.nc"
+    path_dynamic_test = "/media/server/code4earth/US_data/CAMS_Global_US/CAMS_global_forecast_US.nc"  
+    path_target_test = path_dynamic_test
     
     # Static variables (topography, population, etc.)
-    path_static1 = '/media/server/code4earth/code4earth_datasets/ETOPO_2022_v1_60s_N90W180_surface_regional_regridded.nc'
-    path_static2 = '/media/server/code4earth/code4earth_datasets/GHS_population_spatial_resol_0.1_regional_regridded.nc'
+    #path_static1 = '/media/server/code4earth/code4earth_datasets/ETOPO_2022_v1_60s_N90W180_surface_regional_regridded.nc'
+    #path_static2 = '/media/server/code4earth/code4earth_datasets/GHS_population_spatial_resol_0.1_regional_regridded.nc'
+    path_static1 = '/media/server/code4earth/US_data/Orography_US/LandElevation_lsmGHSPopulation_ETOPO_2022_v1_60s_N90W180_surface_US.nc'
+    path_static2 = '/media/server/code4earth/US_data/Population_US/GHS_population_spatial_resol_0.1_eeuu_regridded_non_nan_v2.nc'
 
     # Test set (normalized using training stats)
     X_test, y_test, _, _, _ = prepare_inputs_and_target(

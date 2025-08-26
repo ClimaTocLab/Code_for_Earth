@@ -64,7 +64,7 @@ def test_model(model, test_loader, device, y_mean, y_std):
     print("✔ Predictions, targets and low-res saved in 'Baseline_U-net/outputs/preds_targets_lowres.pt'")
 
 
-def to_netcdf(nc_source):
+def to_netcdf_old(nc_source):
     """
     Converts saved .pt predictions into a NetCDF (.nc) file with proper
     time, latitude, and longitude coordinates from the original dataset.
@@ -105,3 +105,57 @@ def to_netcdf(nc_source):
     # 4. Save as NetCDF
     ds_resultado.to_netcdf("Baseline_U-net/outputs/preds_targets_lowres.nc")
     print("✔ Saved as preds_targets_lowres.nc")
+
+
+def to_netcdf(nc_source, has_targets=True):
+    """
+    Converts saved .pt predictions into a NetCDF (.nc) file with proper
+    time, latitude, and longitude coordinates.
+
+    Si no hay targets (inferencia), solo guarda preds + lowres en la misma rejilla.
+    """
+    import torch
+    import xarray as xr
+
+    # 1. Load saved .pt file
+    data = torch.load("Baseline_U-net/outputs/preds_targets_lowres.pt")
+    preds = data["preds"].numpy()     # (time, 1, H, W)
+    lowres = data["lowres"].numpy()
+    if has_targets:
+        targets = data["targets"].numpy()
+
+    # 2. Load temporal and spatial coordinates desde el lowres (que define rejilla final)
+    ds_input = xr.open_dataset(nc_source)
+    fechas = ds_input.time.values
+    latitude = ds_input.latitude.values
+    longitude = ds_input.longitude.values
+
+    # 3. Build dataset en rejilla de lowres
+    ds_vars = {
+        "preds": xr.DataArray(
+            preds.squeeze(1),
+            dims=["time", "latitude", "longitude"],
+            coords={"time": fechas, "latitude": latitude, "longitude": longitude}
+        ),
+        "lowres": xr.DataArray(
+            lowres.squeeze(1),
+            dims=["time", "latitude", "longitude"],
+            coords={"time": fechas, "latitude": latitude, "longitude": longitude}
+        )
+    }
+
+    if has_targets:
+        ds_vars["targets"] = xr.DataArray(
+            targets.squeeze(1),
+            dims=["time", "latitude", "longitude"],
+            coords={"time": fechas, "latitude": latitude, "longitude": longitude}
+        )
+
+    ds_resultado = xr.Dataset(ds_vars)
+
+    # 4. Save as NetCDF
+    out_path = "Baseline_U-net/outputs/preds_targets_lowres.nc".format()
+    ds_resultado.to_netcdf(out_path)
+    print(f"? Saved as {out_path}")
+
+#to_netcdf_old("Baseline_U-net/data/CAMS_global_forecast_US.nc")

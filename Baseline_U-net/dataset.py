@@ -77,7 +77,7 @@ def prepare_inputs_and_target(path_dynamic: str, path_static1: str, path_static2
         }, f, indent=4)
 
     # PM2.5 target, scaled to g/m³
-    target_array = torch.tensor(ds_target['pm2p5_conc'].values) * 1e9  # [T, H, W]
+    target_array = torch.tensor(ds_target['pm2p5'].values) * 1e9  # [T, H, W]
     T, H_hr, W_hr = target_array.shape
 
     print(f"[{path_target}] pm2p5: min={torch.min(target_array)}, "
@@ -113,7 +113,7 @@ def prepare_inputs_and_target(path_dynamic: str, path_static1: str, path_static2
     # --- Process static variables ---
     static_tensors = []
     static1_vars = ['z']  # topography
-    static2_vars = ['__xarray_dataarray_variable__']  # placeholder
+    static2_vars = ['population']  # placeholder
 
     for path_static, var_list in zip([path_static1, path_static2], [static1_vars, static2_vars]):
         ds_static = xr.open_dataset(path_static)
