@@ -35,7 +35,7 @@ We developed three complementary architectures to address the downscaling proble
 
 A classical fully convolutional architecture used as a baseline.
 
-Highlights:
+**Highlights:**
 
 * Simple and robust
 
@@ -51,7 +51,7 @@ Used as a reference for evaluating the other deep-learning operators.
 
 We extend the Adaptive Fourier Neural Operator (AFNO) with:
 
-✔️ Spatial Modulation
+✔️** Spatial Modulation**
 
 The AFNO latent fields are modulated using static geospatial features:
 
@@ -60,11 +60,11 @@ The AFNO latent fields are modulated using static geospatial features:
 * Population density
 
 
-✔️ Downscaling Adaptation
+✔️ **Downscaling Adaptation**
 
 Originally temporal, AFNO is modified into a purely spatial operator capable of handling low→high resolution mapping.
 
-Strengths:
+**Strengths:**
 
 * Second-best performance overall
 
@@ -79,7 +79,7 @@ Strengths:
 
 A Swin-Transformer variant adapted for geospatial downscaling using FIR-based convolutional mixing.
 
-Strengths:
+**Strengths:**
 
 * Best quantitative performance on the eval set (Europe)
 
@@ -88,27 +88,27 @@ Strengths:
 📂 Code: `Swin_v2_Visual_Transformer/`
 
 ## 📊 Dataset and Training Setup
-Low-resolution input
+**Low-resolution input **
 
-+ CAMS Global data subset covering Europe
+* CAMS Global data subset covering Europe
 
 * PM2.5 concentrations
 
 * Dynamic variables used as predictors (wind speed, temperature, etc.)
 
-High-resolution target
+**High-resolution target**
 
 * CAMS Europe PM2.5
 
 * 0.1° resolution
 
-Static fields
+**Static fields**
 
 * Orography
 
 * Population density
 
-Training region
+**Training region**
 
 * Model trained on the Europe region
 
@@ -118,7 +118,7 @@ Training region
 
 After training on European data:
 
-1. Comparison against CAMS Europe
+**1. Comparison against CAMS Europe**
 
 * Swin Transformer performs best
 
@@ -128,11 +128,11 @@ After training on European data:
 
 * All significantly outperform (traditional) linear interpolation of CAMS Global
 
-2. Comparison to real observations in Europe
+**2. Comparison to real observations in Europe**
 
 Performance comparable to CAMS Europe, validating model skill.
 
-3. Testing on the United States
+**3. Testing on the United States**
 
 * Using real US PM2.5 observations, we test generalization:
 
@@ -142,7 +142,7 @@ Performance comparable to CAMS Europe, validating model skill.
 
 * Swin Transformer → good but more domain sensitive
 
-🔍 Causal Inference Analysis
+## 🔍 Causal Inference Analysis
 
 We supplemented the modeling with a causal analysis module to:
 
