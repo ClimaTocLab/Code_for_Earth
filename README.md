@@ -51,7 +51,7 @@ Used as a reference for evaluating the other deep-learning operators.
 
 We extend the Adaptive Fourier Neural Operator (AFNO) with:
 
-✔️** Spatial Modulation**
+✔️ **Spatial Modulation**
 
 The AFNO latent fields are modulated using static geospatial features:
 
@@ -88,7 +88,7 @@ A Swin-Transformer variant adapted for geospatial downscaling using FIR-based co
 📂 Code: `Swin_v2_Visual_Transformer/`
 
 ## 📊 Dataset and Training Setup
-**Low-resolution input **
+**Low-resolution input**
 
 * CAMS Global data subset covering Europe
 
