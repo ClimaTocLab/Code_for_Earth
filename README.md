@@ -13,14 +13,19 @@ Each model folder contains its own training, inference, dataset structure and co
 
 The aim is to build ML models capable of:
 
-<ul>
-<li>✔️ Downscaling PM2.5 pollution fields from CAMS Global (0.4°) → CAMS Europe (0.1°)
-<li>✔️ Leveraging dynamic predictors: wind speed, temperature, etc.
-<li>✔️ Incorporating static geospatial features: orography, population density
-<li>✔️ Validating results against independent observations across Europe and the US
-<li>✔️ Testing generalization beyond the training domain
-<li>✔️ Understanding feature importance through causal analysis and interpretability tools
-</ul>
+
+✔️ Downscaling PM2.5 pollution fields from CAMS Global (0.4°) → CAMS Europe (0.1°) 
+
+✔️ Leveraging dynamic predictors: wind speed, temperature, etc. 
+
+✔️ Incorporating static geospatial features: orography, population density 
+
+✔️ Validating results against independent observations across Europe and the US
+
+✔️ Testing generalization beyond the training domain
+
+✔️ Understanding feature importance through causal analysis and interpretability tools
+
 
 ## 🧠 Our Three-Model Solution
 
