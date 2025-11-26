@@ -1,0 +1,24 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+.venv310/
+venv/
+ENV/
+
+
+# Datasets
+data/train/
+data/val/
+data/test/
+data/stats/
+data/statics/
+
+#Mlruns
+mlruns/
+
+#checkpoints
+checkpoints/

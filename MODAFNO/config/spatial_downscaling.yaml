@@ -1,0 +1,126 @@
+# SPDX-FileCopyrightText: Copyright (c) 2023 - 2024 NVIDIA CORPORATION & AFFILIATES.
+# SPDX-FileCopyrightText: All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+model:
+  model_type: "Spatial ModAFNO"
+  model_name: "downscaling-cams-spatial_modafno"
+  inp_shape: [105, 175] #[105, 175]
+  out_shape: [420, 700]
+  in_channels: 6
+  out_channels: 1
+  embed_model:
+    dim: 64
+    depth: 4
+    activation_fn: "gelu"
+    method: "static_conv"
+  patch_size: [5, 5] #[5, 5] or [53, 8]
+  embed_dim: 512
+  depth: 8
+  num_blocks: 4
+  drop_rate: 0
+  modulate_mlp: False #True to modulate the mlp, i.e. to use ModAFNO; False to use just AFNO, without modulation
+  modulate_filter: False #True to modulate the filter, i.e. to use ModAFNO; False to use just AFNO, without modulation
+
+sources:
+  dataset:
+    train_input: "data/train/train_input_scaled.nc"
+    train_target: "data/train/train_output_scaled.nc"
+    val_input: "data/val/valid_input_scaled.nc"
+    val_target: "data/val/valid_output_scaled.nc"
+    static_features_path: "data/statics/"
+    static_orography: "LandElevation_lsmGHSPopulation_ETOPO_2022_v1_60s_N90W180_surface_regional_regridded.nc"
+    static_population_density: "GHS_population_spatial_resol_0.1_regional_regridded_noNaN.nc"
+    name: cams
+    input_variables: [
+      'blh', 'u10', 'v10', 'd2m', 't2m', 'pm2p5'
+    ]
+    static_variables: [
+      'z', 'population'
+    ]
+    output_variables: [
+      'pm2p5_conc'
+    ]
+    high_res_low_res_ratio: 4
+    normalization:
+      method: 'z_score' # Options: z_score, z_score_per_pixel, minmax, minmax_per_pixel, none
+      input_stats_path: "data/stats/input_train_stats.npz"
+      compute_target_stats: True # If True, normalize also the target variable
+      target_stats_path: "data/stats/target_train_stats.npz"
+      
+
+training:
+  max_epoch: 4
+  checkpoint_dir: "./checkpoints/"
+  checkpoint_every: 1
+  patience: 40
+  save_best_checkpoint: True
+
+
+evaluation:
+  checkpoint_dir: "./checkpoints/"
+  inference_on_epoch: "best" # Options: "best" or a specific epoch number
+ 
+inference:
+  inference_results: "./inference_results/"
+  inference_maps_dir: "./inference_results/maps/"
+  inference_input: "data/val/valid_input_scaled.nc"
+  inference_target: "data/val/valid_output_scaled.nc"
+
+training_args:
+  batch_size: 8
+  num_workers: 4
+  loss:
+    loss_type: "mse" # Options: "mse", "rmse", "logrmse", "logmse", "charbonnier", "combined"
+    eps: 1e-8
+    log_weight: 0.5
+  optimizer:
+    optimizer_type: "AdamW"
+    optimizer_params:
+      lr: 4e-5
+      weight_decay: 1e-4 
+
+logging:
+  mlflow:
+    use_mlflow: True
+    experiment_name: "Downscaling CAMS Spatial ModAFNO - No Modulation - Whole Dataset"
+    experiment_desc: "High-resolution air pollution downscaling using Spatial ModAFNO"
+    run_name: "Patch_size [1, 1]:  embed_dim: 1024, depth:12, mod_dim:64, num_blocks:8, dropout:0, run-${now:%Y-%m-%d_%H-%M-%S}"
+    run_desc: >
+      Data from 2023 - 19/05/2025 splited randmly in train, val, test.
+      Normalization: z_score
+      Testing:
+      patch_size: [1, 1] -
+      embed_dim: 1024 -
+      mod_dim: 64 -
+      depth: 12 -
+      num_blocks: 8  -
+      drop_rate: 0 -
+      loss: mse -
+      optimizer: AdamW -
+      lr: 4e-5 -
+      wd: 1e-4 -      
+    user_name: "Kevin Monsalvez-Pozo"
+
+metrics:
+  metrics_dir: "./metrics/"
+  metrics_file: "./metrics/metrics_val_no_modulation_whole_dataset_final_3.txt"
+  pred_path: "./inference_results/maps/"
+  pred_dataset: "pm2p5_conc_2025_08_29_18:10:04.nc"
+  gt_path: "./data/val/" 
+  gt_dataset: "valid_output_scaled.nc"
+  variables: [
+      'pm2p5_conc'
+    ]
